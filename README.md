@@ -393,11 +393,6 @@ ChatGPT provided preliminary labeling suggestions for collected Reddit comments.
 
 ---
 
-# Repository Contents
+# Project Demo
+https://youtu.be/t4_4OkMT53g
 
-* `planning.md`
-* `dataset.csv`
-* `README.md`
-* `confusion_matrix.png`
-* `evaluation_results.json`
-* Fine-tuned model outputs and evaluation artifacts
