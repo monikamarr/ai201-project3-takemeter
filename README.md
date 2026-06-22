@@ -8,22 +8,22 @@ This project applies the TakeMeter framework to NBA Reddit discussions. The goal
 * Hot Take
 * Reaction
 
-The project compares a zero-shot large language model baseline against a fine-tuned DistilBERT classifier trained on a manually annotated dataset.
+The project compares a zero-shot large language model baseline against a fine-tuned DistilBERT classifier trained on a manually annotated dataset of NBA Reddit comments.
 
 ---
 
 # Community Choice and Reasoning
 
-I chose NBA Reddit communities because they contain a wide variety of basketball discussion styles. Some users provide detailed reasoning about roster construction, trades, coaching, and player performance, while others post bold opinions or emotional reactions.
+I chose NBA Reddit communities because they contain a wide variety of discussion styles. Users debate player rankings, analyze trades, discuss roster construction, react to breaking news, and share emotional responses to games.
 
-This diversity makes NBA Reddit a strong environment for studying different types of online discourse.
+This diversity makes NBA Reddit an ideal community for studying different forms of online discourse and building a classifier that can distinguish between analytical discussion, strong opinions, and emotional reactions.
 
-Data was collected from:
+Data was collected from NBA-related Reddit communities, including:
 
 * r/nba
 * NBA trade discussion communities
-* NBA news and discussion threads
-* Player discussion and highlight threads
+* NBA news discussion threads
+* Player highlight and debate threads
 
 ---
 
@@ -31,11 +31,10 @@ Data was collected from:
 
 ## Analysis
 
-Definition:
+**Definition:**
+Comments that use basketball reasoning, evidence, trade logic, roster construction, strategy, statistics, or factual comparisons.
 
-Comments that use basketball reasoning, evidence, trade logic, roster construction, strategy, or factual comparisons.
-
-Examples:
+**Examples:**
 
 1. "The Wolves wouldn't do that trade because Gobert's defense is more valuable than Beal's scoring."
 
@@ -45,11 +44,10 @@ Examples:
 
 ## Hot Take
 
-Definition:
-
+**Definition:**
 Bold opinions, rankings, predictions, or strong claims that are not heavily supported by evidence.
 
-Examples:
+**Examples:**
 
 1. "Victor Wembanyama will retire as the greatest player of all time."
 
@@ -59,11 +57,10 @@ Examples:
 
 ## Reaction
 
-Definition:
+**Definition:**
+Emotional responses, jokes, excitement, frustration, disbelief, sarcasm, or short reactions.
 
-Emotional responses, jokes, excitement, frustration, disbelief, or short reactions to events.
-
-Examples:
+**Examples:**
 
 1. "That game was insane!"
 
@@ -73,7 +70,7 @@ Examples:
 
 # Dataset
 
-The final dataset contains 233 manually labeled NBA Reddit comments.
+The final dataset contains **233 manually labeled NBA Reddit comments**.
 
 | Label    | Count |
 | -------- | ----: |
@@ -81,15 +78,27 @@ The final dataset contains 233 manually labeled NBA Reddit comments.
 | Hot Take |    66 |
 | Reaction |    62 |
 
+## Data Collection Source
+
+Comments were manually collected from public NBA Reddit discussion threads. Threads were selected from player discussions, trade discussions, news posts, and highlight posts to ensure a mix of analytical discussion, opinions, and reactions.
+
 ## Labeling Process
 
-Comments were manually collected from NBA Reddit discussion threads and labeled according to the taxonomy defined in the planning phase.
+Each comment was manually reviewed and assigned one label according to the taxonomy above.
 
-Each comment was reviewed individually and assigned one label. Ambiguous examples were discussed and relabeled when necessary to maintain consistency.
+The labeling process focused on identifying the primary purpose of the comment:
 
-## Difficult-to-Label Examples
+* Analysis comments provide reasoning or evidence.
+* Hot Take comments express strong opinions or predictions.
+* Reaction comments express emotion or immediate response.
 
-### Example 1
+Ambiguous examples were reviewed and relabeled when necessary to improve consistency.
+
+---
+
+# Difficult-to-Label Examples
+
+## Example 1
 
 Comment:
 
@@ -97,7 +106,7 @@ Comment:
 
 Decision:
 
-Hot Take
+**Hot Take**
 
 Reason:
 
@@ -105,7 +114,7 @@ This is a strong ranking claim without supporting evidence.
 
 ---
 
-### Example 2
+## Example 2
 
 Comment:
 
@@ -113,15 +122,15 @@ Comment:
 
 Decision:
 
-Analysis
+**Analysis**
 
 Reason:
 
-The comment contains comparative reasoning and explains a basketball observation.
+The comment contains comparative reasoning and explains an observation.
 
 ---
 
-### Example 3
+## Example 3
 
 Comment:
 
@@ -129,11 +138,11 @@ Comment:
 
 Decision:
 
-Analysis
+**Analysis**
 
 Reason:
 
-Although informal, it communicates a factual observation rather than an emotional reaction.
+Although informal, the comment communicates a factual observation rather than an emotional reaction.
 
 ---
 
@@ -145,17 +154,18 @@ DistilBERT (`distilbert-base-uncased`)
 
 ## Training Setup
 
-* 3 training epochs
-* Learning rate: 2e-5
-* Batch size: 16
-* Weight decay: 0.01
+* Model: DistilBERT
+* Epochs: 3
+* Learning Rate: 2e-5
+* Batch Size: 16
+* Weight Decay: 0.01
 * Stratified train/validation/test split
 
 ## Hyperparameter Decision
 
-I kept the default learning rate of 2e-5 because it is commonly used for BERT-family fine-tuning and provides stable training on small datasets.
+I selected a learning rate of 2e-5 because it is commonly used for fine-tuning BERT-family models and tends to provide stable training performance on smaller datasets.
 
-I also used three epochs because the dataset contains only 233 examples and additional epochs could increase the risk of overfitting.
+I used three training epochs because the dataset contains only 233 examples. Training longer could increase the risk of overfitting.
 
 ---
 
@@ -163,7 +173,7 @@ I also used three epochs because the dataset contains only 233 examples and addi
 
 The baseline classifier used Groq's Llama 3.3 70B model in a zero-shot setting.
 
-Prompt:
+## Prompt Used
 
 ```text
 You are classifying comments from NBA Reddit communities.
@@ -188,52 +198,76 @@ Each test example was sent to the model individually and the returned label was 
 
 # Evaluation Report
 
-## Accuracy
+## Accuracy Comparison
 
 | Model                   | Accuracy |
 | ----------------------- | -------: |
-| Groq Zero-Shot Baseline |    57.1% |
+| Groq Zero-Shot Baseline |    54.3% |
 | Fine-Tuned DistilBERT   |    57.1% |
 
-The fine-tuned model matched the baseline accuracy.
+Fine-tuning improved performance by **2.9 percentage points** over the baseline.
+
+### Results Summary
+
+```text
+==================================================
+RESULTS COMPARISON
+==================================================
+Model                               Accuracy
+---------------------------------------------
+Zero-shot baseline (Groq)              0.543
+Fine-tuned DistilBERT                  0.571
+---------------------------------------------
+
+Fine-tuning improvement: 0.029
+```
 
 ---
 
-## Per-Class Metrics (Fine-Tuned Model)
+## Fine-Tuned Model Metrics
 
-| Label    | Precision | Recall |   F1 |
-| -------- | --------: | -----: | ---: |
-| Analysis |      0.52 |   1.00 | 0.68 |
-| Hot Take |      0.00 |   0.00 | 0.00 |
-| Reaction |      1.00 |   0.44 | 0.62 |
+| Label    | Precision | Recall | F1 Score |
+| -------- | --------: | -----: | -------: |
+| Analysis |      0.52 |   1.00 |     0.68 |
+| Hot Take |      0.00 |   0.00 |     0.00 |
+| Reaction |      1.00 |   0.44 |     0.62 |
 
----
-
-## Per-Class Metrics (Baseline)
-
-| Label    | Precision | Recall |   F1 |
-| -------- | --------: | -----: | ---: |
-| Analysis |      0.82 |   0.56 | 0.67 |
-| Hot Take |      1.00 |   0.20 | 0.33 |
-| Reaction |      0.41 |   1.00 | 0.58 |
+Overall Accuracy: **57.1%**
 
 ---
 
-## Confusion Matrix (Fine-Tuned Model)
+## Baseline Metrics
+
+| Label    | Precision | Recall | F1 Score |
+| -------- | --------: | -----: | -------: |
+| Analysis |      0.82 |   0.56 |     0.67 |
+| Hot Take |      1.00 |   0.20 |     0.33 |
+| Reaction |      0.41 |   1.00 |     0.58 |
+
+Overall Accuracy: **54.3%**
+
+---
+
+## Confusion Matrix
 
 | True Label | Predicted Analysis | Predicted Hot Take | Predicted Reaction |
 | ---------- | -----------------: | -----------------: | -----------------: |
 | Analysis   |                 16 |                  0 |                  0 |
 | Hot Take   |                 10 |                  0 |                  0 |
-| Reaction   |                  9 |                  0 |                  0 |
+| Reaction   |                  5 |                  0 |                  4 |
 
-The fine-tuned model heavily favored the Analysis category and failed to learn a strong distinction between Analysis and Hot Take.
+### Confusion Matrix Visualization
+
+<img width="514" height="490" alt="image" src="https://github.com/user-attachments/assets/76a229a4-c06a-416a-847b-a945cb646730" />
+
+
+The confusion matrix shows that the model strongly favored the Analysis category. All Hot Take examples were classified as Analysis, while some Reaction comments were correctly identified. This indicates that distinguishing Analysis from Hot Take was the primary challenge in this project.
 
 ---
 
 # Wrong Predictions Analysis
 
-## Error 1
+## Wrong Prediction 1
 
 Text:
 
@@ -241,19 +275,19 @@ Text:
 
 True Label:
 
-Hot Take
+**Hot Take**
 
 Predicted Label:
 
-Analysis
+**Analysis**
 
 Reason:
 
-The model interpreted player evaluation language as basketball analysis rather than a bold opinion.
+The model interpreted player evaluation language as basketball analysis rather than a strong opinion.
 
 ---
 
-## Error 2
+## Wrong Prediction 2
 
 Text:
 
@@ -261,35 +295,35 @@ Text:
 
 True Label:
 
-Hot Take
+**Hot Take**
 
 Predicted Label:
 
-Analysis
+**Analysis**
 
 Reason:
 
-The statement is an opinion but resembles analytical player evaluation.
+The statement resembles player evaluation and lacks explicit indicators that it is an opinion.
 
 ---
 
-## Error 3
+## Wrong Prediction 3
 
 Text:
 
-> "The documentary will be 100 hours long and still not be enough."
+> "He is now the perfect tank commander."
 
 True Label:
 
-Reaction
+**Hot Take**
 
 Predicted Label:
 
-Analysis
+**Analysis**
 
 Reason:
 
-The model struggled to recognize sarcasm and emotional language.
+The model appears to interpret basketball terminology as analytical discussion rather than a strong opinion.
 
 ---
 
@@ -297,17 +331,25 @@ The model struggled to recognize sarcasm and emotional language.
 
 | Text                                                            | Predicted Label | Confidence | Correct? |
 | --------------------------------------------------------------- | --------------- | ---------: | -------- |
-| We made it to the finals with him.                              | Analysis        |      0.372 | Yes      |
-| Missing 10–15 games a year is pretty average.                   | Analysis        |      0.375 | Yes      |
-| The documentary will be 100 hours long and still not be enough. | Analysis        |      0.372 | No       |
-| He is now the perfect tank commander.                           | Analysis        |      0.364 | No       |
-| The most athletic human I've ever seen and it's not close.      | Analysis        |      0.373 | No       |
+| We made it to the finals with him.                              | Analysis        |      0.349 | Yes      |
+| Missing 10–15 games a year is pretty average.                   | Analysis        |      0.345 | Yes      |
+| The documentary will be 100 hours long and still not be enough. | Reaction        |      0.339 | Yes      |
+| He is now the perfect tank commander.                           | Analysis        |      0.349 | No       |
+| The most athletic human I've ever seen and it's not close.      | Analysis        |      0.347 | No       |
 
-### Correct Prediction Explanation
+## Correct Prediction Explanation
 
-"We made it to the finals with him."
+Text:
 
-This was correctly classified as Analysis because it references a basketball outcome and serves as evidence supporting an argument about a player's value.
+> "We made it to the finals with him."
+
+Prediction:
+
+**Analysis**
+
+Reason:
+
+The comment references a basketball outcome and serves as evidence supporting an argument about a player's value. This matches the Analysis category.
 
 ---
 
@@ -315,9 +357,11 @@ This was correctly classified as Analysis because it references a basketball out
 
 The model successfully learned to identify many Analysis comments but struggled to separate Analysis from Hot Take.
 
-This suggests that NBA discussions often mix opinions with basketball reasoning, making the categories less distinct than originally expected.
+This suggests that NBA discussions often blend basketball reasoning with strong opinions. Many comments contain elements of both categories, making the classification task more difficult than expected.
 
-The model appeared to learn that Analysis was the safest prediction when uncertain, which caused it to over-predict that category.
+The model frequently defaulted to predicting Analysis when uncertain, which explains the poor Hot Take recall.
+
+Although the fine-tuned model only slightly outperformed the baseline, the results demonstrate that domain-specific annotation can improve performance even with a relatively small dataset.
 
 ---
 
@@ -325,11 +369,11 @@ The model appeared to learn that Analysis was the safest prediction when uncerta
 
 ## How the Spec Helped
 
-The requirement to define labels and edge cases before collecting data improved consistency during annotation and forced me to think carefully about category boundaries.
+The requirement to define labels and edge cases before data collection improved annotation consistency. Having clear label definitions made it easier to make decisions when comments were ambiguous.
 
 ## How Implementation Diverged
 
-During annotation I discovered that Analysis and Hot Take overlap much more than expected. Many comments contained both basketball reasoning and strong opinions, making the original label boundaries difficult to enforce consistently.
+During annotation I discovered that Analysis and Hot Take overlap much more than expected. Many comments combined basketball reasoning with strong opinions, requiring judgment calls that were not fully anticipated in the original plan.
 
 ---
 
@@ -337,12 +381,23 @@ During annotation I discovered that Analysis and Hot Take overlap much more than
 
 ## Example 1
 
-I used ChatGPT to help refine the label taxonomy by generating borderline examples between Analysis and Hot Take. I manually reviewed and revised the final definitions before using them for annotation.
+I used ChatGPT to help refine the label taxonomy by generating borderline examples between Analysis and Hot Take. I manually reviewed and revised the final definitions before applying them during annotation.
 
 ## Example 2
 
-I used ChatGPT to analyze model errors after evaluation. The AI suggested that overlap between Analysis and Hot Take was likely causing confusion. I reviewed the misclassified examples manually before incorporating those conclusions into this report.
+I used ChatGPT to analyze model errors after evaluation. The AI helped identify patterns in the confusion matrix and suggested possible reasons for the model's tendency to over-predict Analysis.
 
 ## Annotation Assistance
 
-ChatGPT assisted with preliminary labeling suggestions for collected Reddit comments. All labels were manually reviewed and corrected before inclusion in the final dataset.
+ChatGPT provided preliminary labeling suggestions for collected Reddit comments. All labels were manually reviewed and corrected before inclusion in the final dataset.
+
+---
+
+# Repository Contents
+
+* `planning.md`
+* `dataset.csv`
+* `README.md`
+* `confusion_matrix.png`
+* `evaluation_results.json`
+* Fine-tuned model outputs and evaluation artifacts
